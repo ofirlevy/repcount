@@ -20,10 +20,9 @@ counting live from camera
 2. run live_count/live_rep.py
 
 
-Alternatively, You can stream from file using 
-$ live_count/live_rep.py -i "file_name"
+Alternatively, You can stream from file using:  
+live_count/live_rep.py -i "file_name"  
 You can try as an input our captured long live video, located at data/vid_live
-
 
 
 running YTIO benchmark
