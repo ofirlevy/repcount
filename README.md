@@ -9,8 +9,7 @@ prerequisites
 
 1. python 2.7 (might work also with python 3.x though we haven't tested it)
 2. theano
-3. cv2
-
+3. python packages: cPickle, numpy, scipy, cv2
 
 
 
@@ -21,8 +20,9 @@ counting live from camera
 2. run live_count/live_rep.py
 
 
-alternatively, You can stream from file using 
-live_count/live_rep.py -i "file_name"
+Alternatively, You can stream from file using 
+$ live_count/live_rep.py -i "file_name"
+You can try as an input our captured long live video, located at data/vid_live
 
 
 
