@@ -1,10 +1,7 @@
 '''
 live repetition counting system
-Usage:
-   
-Keyboard shortcuts:
-
-   ESC - exit
+Ofir Levy, Lior Wolf
+Tel Aviv University
 '''
 import cPickle
 import time
@@ -365,7 +362,7 @@ if __name__ == '__main__':
         
     
     ######################## build done ########################
-    #-i /home/ofir/smbshare/merge_vids/live.avi    
+    
     
     inputfile = ''
     fromCam = True
@@ -375,10 +372,7 @@ if __name__ == '__main__':
 	print 'invalid arguments. for input from camera, add -i <inputfile> for input from file'
 	sys.exit(2)
     for opt, arg in opts:
-	if opt == '-h':
-	    print 'for input from camera, add -i <inputfile> for input from file'
-	    sys.exit()
-	elif opt in ('-i', '--ifile'):
+	if opt in ('-i', '--ifile'):
 	    inputfile = arg
 	    fromCam = False
 	    
@@ -387,20 +381,19 @@ if __name__ == '__main__':
 	cap = cv2.VideoCapture(0)
     else:
 	print 'using input file: ', inputfile    	
-	cap = cv2.VideoCapture('/home/or/thesis/smbshare/merge_vids/live.avi')
+	cap = cv2.VideoCapture(inputfile)
 	
 	    
     # my timing 
     frame_rate = 30
     frame_interval_ms = 1000/frame_rate
     
-    fourcc = cv2.cv.CV_FOURCC(*'XVID')
-    video_writer = cv2.VideoWriter("/home/or/thesis/smbshare/merge_vids/long_live_out.avi", fourcc, frame_rate, (640, 480))
+    fourcc = cv2.cv.CV_FOURCC(*'XVID')    
+    video_writer = cv2.VideoWriter("../out/live_out.avi", fourcc, frame_rate, (640, 480))
 
     frame_counter = 0
     ret, frame = cap.read()
 
-    frame = scipy.misc.imresize(frame, size=(480,640),interp='bilinear')    
     proFrame = process_single_frame(frame)
     
     # init detectors    

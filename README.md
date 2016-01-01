@@ -17,12 +17,13 @@ counting live from camera
 ----------------------------------------------------
 
 1. connect a web cam
-2. run live_count/live_rep.py
+2. run live_count/live_rep.py 
 
 
 Alternatively, You can stream from file using:  
 live_count/live_rep.py -i "file_name"  
-You can try as an input our captured long live video, located at data/vid_live
+You can try as an input our captured long live video, located at data/cam
+i.e: live_rep.py -i ../data/cam/live.avi
 
 
 running YTIO benchmark

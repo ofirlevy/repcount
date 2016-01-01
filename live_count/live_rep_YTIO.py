@@ -1,20 +1,15 @@
 '''
 live repetition counting system
-Usage:
-   
-Keyboard shortcuts:
-
-   ESC - exit
+Ofir Levy, Lior Wolf
+Tel Aviv University   
 '''
 import cPickle
-import time
 import numpy
 import cv2
 from scipy.ndimage import filters
 import theano
 import scipy
 import theano.tensor as T
-import sys, getopt
 from layers import LogisticRegression, HiddenLayer, LeNetConvPoolLayer
 
 class state:
@@ -36,8 +31,8 @@ in_time = 0
 out_time = 0
 cooldown_in_time = 0
 cooldown_out_time = 0
-
-
+frame_rate = 30
+num_of_vids = 25
 
 class RepDetector:
 
@@ -108,16 +103,11 @@ class RepDetector:
 	else:
 	    framesRoi = self.frame_set[:,:,:]
     
-	# debug - show ROI
-	#cv2.namedWindow('ROI', cv2.WINDOW_NORMAL)
-	#bla= scipy.misc.imresize(framesRoi[19,:,:], size=(200,200),interp='bilinear')
-	#cv2.imshow('ROI', bla)                    
-	
 	# resize to 50x50    
 	frameROIRes = numpy.zeros([20,50,50])
 	for i in range(20):
 	    frameROIRes[i,:,:] = scipy.misc.imresize(framesRoi[i,:,:], size=(50,50),interp='bilinear')
-	    
+	    	
 	riofstd = numpy.std(frameROIRes,axis=0)
 	self.cur_std = numpy.mean(riofstd)
 	    
@@ -138,7 +128,7 @@ class RepDetector:
 	output_label = output_label[0] + 3  
 	self.label_array = numpy.delete(self.label_array,0,axis=0)
 	self.label_array = numpy.insert(self.label_array, history_num-1 , output_label, axis=0)
-	#take median of the last 4
+	#take median of the last frames
 	med_out_label = numpy.ceil(numpy.median(self.label_array[history_num-4:history_num]))    
 	med_out_label = med_out_label.astype('int32')
 
@@ -162,7 +152,6 @@ class RepDetector:
 	# insert new frame
 	self.frame_set = numpy.delete(self.frame_set,0,axis=0)
 	self.frame_set = numpy.insert(self.frame_set, 19 , proFrame, axis=0)
-	#self.frame_set = self.frame_set.astype('uint8')
 	
 	if (cur_state == state.NO_REP):
 	    self.do_local_count(classify, True)		    
@@ -173,7 +162,7 @@ class RepDetector:
 	
 	# common to all states
 	if (self.cur_std < static_th):
-	    self.cur_entropy = 2			
+	    self.cur_entropy = 2		
 	self.count_array = numpy.delete(self.count_array,0,axis=0) 
 	self.count_array = numpy.insert(self.count_array, history_num-1 , self.rep_count, axis=0)
 	self.ent_arr = numpy.delete(self.ent_arr,0,axis=0)
@@ -195,7 +184,7 @@ class RepDetector:
 	if ((cur_state == state.IN_REP) and (winner_stride == self.stride_number)):
 	    lastSixSorted = numpy.sort(self.ent_arr[history_num-8:history_num])
 	    # if we see good condition for rep take the counting and move to rep state
-	    # also, if there were 2 below 1 in the last 5 entropies, don't stop.
+	    # also, if there were 2 below th in the last entropies, don't stop.
 	    if (((self.st_std > inrep_std_th) and (self.st_entropy < inrep_ent_th)) or  (lastSixSorted[1] < lastsix_ent_th)):
 		# continue counting
 		global_counter = self.rep_count
@@ -208,7 +197,7 @@ class RepDetector:
 		    cur_state = state.NO_REP			    
 		    print 'fast recovery applied !!'
 		else:
-		    # rewind redandunt count mechanism
+		    # rewind redundant count mechanism
 		    # find how many frames pass since we have low entropy
 		    frames_pass = 0
 		    reversed_ent = self.ent_arr[::-1]
@@ -240,7 +229,6 @@ def draw_str(dst, (x, y), s, color, scale):
 	cv2.putText(dst, s, (x+1, y+1), cv2.FONT_HERSHEY_PLAIN, scale, (0, 0, 0), thickness = 4, lineType=10)
     else:
 	cv2.putText(dst, s, (x+1, y+1), cv2.FONT_HERSHEY_PLAIN, scale, color, thickness = 4, lineType=10)
-    #cv2.line    
     cv2.putText(dst, s, (x, y), cv2.FONT_HERSHEY_PLAIN, scale, (255, 255, 255), lineType=11)
     
 
@@ -257,11 +245,11 @@ def shared_dataset(data_xy, borrow=True):
 
 
 def process_single_frame(frame):
-    
+        
     # convert to gray scal
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    # downscale by 4 (to 160x120)
-    gray_frame = gray_frame[::2,::2]    
+    # downscale by 2
+    gray_frame = gray_frame[::2,::2]  
     return gray_frame
 
 
@@ -358,98 +346,18 @@ if __name__ == '__main__':
     layer2.__setstate__(loaded_objects[2])
     layer3.__setstate__(loaded_objects[3])
     layer4.__setstate__(loaded_objects[4])
-        
-        
+                
     
-    ######################## build done ########################    
-    ###
-    vid_list = ['/home/or/thesis/data_repdeep/YTIO_db/inout_autism9.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_baby.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_basketball_dribble.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_burpees.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_cake_decorating.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_cat_pet.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_chopping_onion.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_cross_squat_blocks.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_dog_jump_baby.avi',                
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_dog_jump_cookie.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_dumbell.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_gymnastics_spinning.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_homemade_swing.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_leg_press.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_leg_raises.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_polish.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_pool.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_potato_peeler.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_pushups3.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_red_onion.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/inout_swing.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/1.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/2.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/3.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/4.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/5.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/6.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/7.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/8.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/9.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/10.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/11.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/12.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/13.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/14.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/15.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/16.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/17.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/18.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/19.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/20.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/21.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/22.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/23.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/24.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/25.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/26.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/27.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/28.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/29.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/30.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/31.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/32.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/33.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/34.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/35.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/36.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/37.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/38.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/39.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/40.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/41.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/42.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/43.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/44.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/45.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/46.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/47.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/48.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/49.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/50.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/51.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/52.avi',
-                '/home/or/thesis/data_repdeep/YTIO_db/53.avi']		
+    ######################## build done ###########################
+     
     
-    #vid_list = ['/home/or/thesis/data_repdeep/YTIO_db/32.avi']
+    countMap = numpy.zeros([num_of_vids,10])
+    for vidNum in range(1,num_of_vids+1):
     
-    
-    countMap = numpy.zeros([len(vid_list),10])
-    for vidNum in xrange(0,len(vid_list)):
-    
-	# input video
-	cap = cv2.VideoCapture(vid_list[vidNum])	
-		
-	# result video
-	frame_rate = 30
-	video_writer = cv2.VideoWriter('/home/or/thesis/data_repdeep/YTIO_out/YTIO_out'+str(vidNum)+'.avi', cv2.cv.CV_FOURCC(*'XVID'), frame_rate, (640, 480))	
+	# input video	
+	cap = cv2.VideoCapture('../data/YTIO/YTIO_'+str(vidNum)+'.avi')	
+	# output video	
+	video_writer = cv2.VideoWriter('../out/YTIO_out'+str(vidNum)+'.avi', cv2.cv.CV_FOURCC(*'XVID'), frame_rate, (640, 480))	
     
 	global_counter = 0
 	winner_stride = 0
@@ -457,14 +365,14 @@ if __name__ == '__main__':
 	in_frame_num = -1
 	actions_counter = 0
     
-    	ret, frame = cap.read()
+    	ret, frame = cap.read()	
 	frame = scipy.misc.imresize(frame, size=(480,640),interp='bilinear')
 	proFrame = process_single_frame(frame)
 	
 	# init detectors    
-	st5_det = RepDetector(proFrame, detector_strides[0])
-	st7_det = RepDetector(proFrame, detector_strides[1])
-	st8_det = RepDetector(proFrame, detector_strides[2])
+	stA_det = RepDetector(proFrame, detector_strides[0])
+	stB_det = RepDetector(proFrame, detector_strides[1])
+	stC_det = RepDetector(proFrame, detector_strides[2])
 	    
 	while True:
 	    
@@ -474,18 +382,19 @@ if __name__ == '__main__':
 	    if (ret == 0):
 		print ('vid'+str(vidNum)+ ' done') 
 		break
-	    frame = scipy.misc.imresize(frame, size=(480,640),interp='bilinear')
+	
+	    frame = scipy.misc.imresize(frame, size=(480,640),interp='bilinear')    
 	    proFrame = process_single_frame(frame)
     
-	    # handle stride 5	
-	    if (in_frame_num % st5_det.stride_number == 0):
-		st5_det.count(proFrame)
-	    # handle stride 7
-	    if (in_frame_num % st7_det.stride_number == 0):
-		st7_det.count(proFrame)
-	    # handle stride 8
-	    if (in_frame_num % st8_det.stride_number == 0):
-		st8_det.count(proFrame)	
+	    # handle stride A
+	    if (in_frame_num % stA_det.stride_number == 0):
+		stA_det.count(proFrame)
+	    # handle stride B
+	    if (in_frame_num % stB_det.stride_number == 0):
+		stB_det.count(proFrame)
+	    # handle stride C
+	    if (in_frame_num % stC_det.stride_number == 0):
+		stC_det.count(proFrame)	
 		    
 	    # display result on video				    
 	    blue_color = (130, 0, 0)
@@ -500,8 +409,7 @@ if __name__ == '__main__':
 		draw_str(frame, (20, 120), "action %d: counting... %d" % (actions_counter, global_counter), green_color, 2)
 	    if ((cur_state == state.COOLDOWN) and (global_counter>=5)):
 		draw_str(frame, (20, 120), "action %d: done. final counting: %d" % (actions_counter, global_counter), blue_color, 2)
-		countMap[vidNum,actions_counter-1] = global_counter
-		
+		countMap[vidNum-1,actions_counter-1] = global_counter		
     
 	    video_writer.write(frame)
 	    cv2.namedWindow('threaded video', cv2.WINDOW_NORMAL)	    
@@ -511,7 +419,8 @@ if __name__ == '__main__':
 		break   
 	
 	# if video and done and we are in the middle of counting, take it into account
-	countMap[vidNum,actions_counter-1] = global_counter
+	if (cur_state == state.IN_REP):
+	    countMap[vidNum-1,actions_counter-1] = global_counter
 	# close all	
 	cap.release()        
 	video_writer.release()
@@ -522,12 +431,12 @@ if __name__ == '__main__':
     # produce stats
     print 'done. count map:'
     print countMap
-    gt_counts = numpy.array([6,10,25,8,14,7,10,27,16,6,8,18,5,12,12,23,24,7,26,11,7,14,2,10,5,4,12,6,6,10,12,6,16,12,27,29,21,9,9,10,9,16,7,21,9,10,8,7,9,14,13,10,12,25,11,14,15,10,13,11,12,5,10,5,5,10,5,5,10,10,10,10,11,5])    
+    gt_counts = numpy.array([10,7,27,6,5,24,7,26,7,14,5,12,6,29,10,10,9,14,13,10,12,5,5,5,5])
     xx = numpy.sum(countMap, axis=1)    
     numpy.abs(gt_counts - xx)
     dif = numpy.abs(gt_counts - xx)
-    print ('number of vids that diff = 0 =  % i' %(numpy.sum(dif < 1)))
-    print ('number of vids that diff <= 1 =  % i' %(numpy.sum(dif < 2)))
-    print ('number of vids that diff <= 2 =  % i' %(numpy.sum(dif < 3)))
-    print ('number of vids that diff <= 3 =  % i' %(numpy.sum(dif < 4)))
+    print ('number of vids that count diff = 0 =  % i' %(numpy.sum(dif < 1)))
+    print ('number of vids that count diff <= 1 =  % i' %(numpy.sum(dif < 2)))
+    print ('number of vids that count diff <= 2 =  % i' %(numpy.sum(dif < 3)))
+    print ('number of vids that count diff <= 3 =  % i' %(numpy.sum(dif < 4)))
     print('done')
