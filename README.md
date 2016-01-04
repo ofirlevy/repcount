@@ -16,8 +16,11 @@ prerequisites
 counting live from camera
 ----------------------------------------------------
 
-1. connect a web cam
-2. run live_count/live_rep.py 
+This script operates our live counting system using a webcam as input.
+make sure you have webcam connected  
+1. connect a web cam  
+2. go to live_count folder and run:
+> python live_rep.py 
 
 
 Alternatively, You can stream from file using:  
