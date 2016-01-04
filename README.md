@@ -25,8 +25,8 @@ make sure you have webcam connected
 
 Alternatively, You can stream from file using:  
 live_count/live_rep.py -i "file_name"  
-You can try as an input our captured long live video, located at data/cam
-i.e: live_rep.py -i ../data/cam/live.avi
+You can try as an input our captured long live video, located at data/cam. i.e: 
+> python live_rep.py -i ../data/cam/live.avi
 
 
 running YTIO benchmark
@@ -34,8 +34,8 @@ running YTIO benchmark
 
 download YTIO benchmark videos from "..."
 run "live_rep_YTIO.py -i "folderName" where folderName contains the YTIO videos
-example: 
-$ python live_rep_YTIO.py -i "/home/olevy/rep/ytio_vids/"
+example:
+> python live_rep_YTIO.py -i "/home/olevy/rep/ytio_vids/"
 
 
 
