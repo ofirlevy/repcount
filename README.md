@@ -9,7 +9,7 @@ prerequisites
 
 1. python 2.7 (might work also with python 3.x though we haven't tested it)
 2. theano
-3. python packages: cPickle, numpy, scipy, cv2
+3. python packages: cPickle, gzip, numpy, scipy, cv2
 
 
 
