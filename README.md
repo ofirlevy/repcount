@@ -1,8 +1,8 @@
 introduction
 ----------------------------------------------------
 
-TBD
-
+This repository contains an implementation of Live Repetition counting method presented in ICCV2015 paper by Ofir Levy and Lior Wolf (Tel Aviv University).  
+This method detects and live counts any type of repetative motion. Please refer the paper for more details
 
 prerequisites
 ----------------------------------------------------
@@ -11,20 +11,17 @@ prerequisites
 2. theano
 3. python packages: cPickle, gzip, numpy, scipy, cv2
 
-
-
 counting live from camera
 ----------------------------------------------------
 
-This script operates our live counting system using a webcam as input.
-make sure you have webcam connected  
-1. connect a web cam  
+This script operates our live counting system using a webcam as input.  
+1. make sure you have webcam connected  
 2. go to live_count folder and run:
 > python live_rep.py 
 
-
 Alternatively, You can stream from file using:  
-live_count/live_rep.py -i "file_name"  
+> python live_rep.py -i <file_name>
+
 You can try as an input our captured long live video, located at data/cam. i.e: 
 > python live_rep.py -i ../data/cam/live.avi
 
