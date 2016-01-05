@@ -11,40 +11,45 @@ prerequisites
 2. theano
 3. python packages: cPickle, gzip, numpy, scipy, cv2
 
+note: we refer below to $ROOT as the root folder of this repository.
+
 counting live from camera
 ----------------------------------------------------
 
 This script operates our live counting system using a webcam as input.  
 1. make sure you have webcam connected  
-2. go to live_count folder and run:
+2. go to $ROOT/live_count folder and run:
 > python live_rep.py 
 
 Alternatively, You can stream from file using:  
-> python live_rep.py -i <file_name>
+> python live_rep.py -i "file_name"
 
-You can try as an input our captured long live video, located at data/cam. i.e: 
+You can try as an input our captured long live video, located at $ROOT/data/cam. i.e: 
 > python live_rep.py -i ../data/cam/live.avi
 
+The output video will be stored at $ROOT/out folder
 
 running YTIO benchmark
 ----------------------------------------------------
 
-download YTIO benchmark videos from "..."
-run "live_rep_YTIO.py -i "folderName" where folderName contains the YTIO videos
-example:
-> python live_rep_YTIO.py -i "/home/olevy/rep/ytio_vids/"
+The 25 YTIO videos are located in $ROOT/data/YTIO folder.  
+To run the system on this benchmark go to $ROOT/live_count folder and run:
+> python live_rep_YTIO.py 
 
+The output videos will be stored at $ROOT/out folder
 
 
 running segmented benchmark with online entropy
 ----------------------------------------------------
 
+The 25 YTIO videos are located in $ROOT/data/YT_seg folder.  
+To run the system on this benchmark go to $ROOT/test_seg_benchmark.  
+To run using online entropy
+> python live_rep_YTIO.py --online
 
 
+See the paper for details regading online and offline entropy configuration
 
-
-running segmented benchmark with offline entropy
-----------------------------------------------------
 
 
 
