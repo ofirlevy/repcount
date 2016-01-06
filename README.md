@@ -40,10 +40,10 @@ To run the system on this benchmark go to $ROOT/live_count folder and run:
 The output videos will be stored at $ROOT/out folder
 
 
-running segmented benchmark with online entropy
+running segmented benchmark
 ----------------------------------------------------
 
-The 25 YTIO videos are located in $ROOT/data/YT_seg folder.  
+The 100 segmented videos are located in $ROOT/data/YT_seg folder.  
 To run the system on this benchmark go to $ROOT/test_seg_benchmark.  
 To run using online entropy
 > python rep_test_benchmark.py --online
@@ -68,7 +68,4 @@ This will create the require h5 files under $ROOT/out/h5 folder.
 python rep_train_main.py  
 A snapshot (weights file) will be stored every epoch under $ROOT/trainNet/weights folder.  
 You can peak a weight file and replace it with the exisiting in the folders above.
-
-
-
 
