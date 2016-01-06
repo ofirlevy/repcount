@@ -58,16 +58,16 @@ See the paper for details regading online and offline entropy configuration.
 create a synthetic training data set and train a classifier
 ----------------------------------------------------
 
-1. create synthetic data using our Matlab script  
-go to $ROOT/syn_data and run cData_run.m  
-This will create .mat files for train and validation under $ROOT/out/mat folder
-2. To convert the mat files to hdf file go to go to $ROOT/syn_data and run:  
+1. Create synthetic data using our Matlab script.  
+Go to $ROOT/syn_data and run cData_run.m  
+This will create .mat files for train and validation sets under $ROOT/out/mat folder.
+2. To convert the mat files to hdf files go to go to $ROOT/syn_data and run:  
   python rep_pickle.py  
-this will create the require h5 files under $ROOT/out/h5 folder
-3. to train the network go to  $ROOT/trainNet folder and run:  
-python rep_train_main.py
-a snapshot (weights file) will be stored every epoch under $ROOT/trainNet/weights folder
-you can peak a weight file and replace it with the exisiting in the folders above.
+This will create the require h5 files under $ROOT/out/h5 folder.
+3. To train the network go to  $ROOT/trainNet folder and run:  
+python rep_train_main.py  
+A snapshot (weights file) will be stored every epoch under $ROOT/trainNet/weights folder.  
+You can peak a weight file and replace it with the exisiting in the folders above.
 
 
 
